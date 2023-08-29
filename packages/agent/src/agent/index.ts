@@ -3,6 +3,7 @@ import { Agent } from './api';
 
 export * from './api';
 export * from './http';
+export * from './ws';
 export * from './proxy';
 
 declare const window: GlobalInternetComputer;
