@@ -4,7 +4,7 @@ import { AgentError } from '../../errors';
 import { requestIdOf } from '../../request_id';
 import { SignIdentity } from '../../auth';
 import * as cbor from '../../cbor';
-import { concat, fromHex } from '../../utils/buffer';
+import { compare, concat, fromHex } from '../../utils/buffer';
 import {
   Agent,
   ApiQueryResponse,
@@ -262,7 +262,7 @@ export class WsAgent implements Agent {
       const handler = (event: MessageEvent) => {
         const res = cbor.decode(event.data as ArrayBuffer);
         if (isWsAgentResponse(res)) {
-          if (res.nonce === messageNonce) {
+          if (compare(res.nonce, messageNonce) === 0) {
             this._ws.removeEventListener('message', handler);
             const response = new Response(res.payload.content, {
               status: res.payload.status,
