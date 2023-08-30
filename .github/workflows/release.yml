@@ -1,11 +1,11 @@
-name: Release tarball
+name: Release agent tarball
 
 # only run when a commit is pushed to the main branch
 on:
   workflow_dispatch:
 
 jobs:
-  tests:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,11 +22,25 @@ jobs:
         run: npm run build -w packages/agent
       - name: Pack agent
         run: npm pack --workspace packages/agent
+      - name: Get version from package.json
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      - name: Get short SHA-1
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Get tag name
+        id: tag
+        run: echo "tag_name=v${{ steps.package-version.outputs.current-version }}-${{ steps.vars.outputs.sha_short }}" >> $GITHUB_OUTPUT
+      - name: Create a tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.tag.outputs.tag_name }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             ./*.tgz
+          tag_name: ${{ steps.tag.outputs.tag_name }}
           name: |
             Release ${{ github.sha }}
           draft: false
