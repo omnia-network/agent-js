@@ -42,6 +42,6 @@ jobs:
             ./*.tgz
           tag_name: ${{ steps.tag.outputs.tag_name }}
           name: |
-            Release ${{ github.sha }}
+            Release ${{ steps.tag.outputs.tag_name }}
           draft: false
           prerelease: false
