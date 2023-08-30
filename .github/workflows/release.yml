@@ -1,6 +1,6 @@
 name: Release agent tarball
 
-# only run when a commit is pushed to the main branch
+# only run when manually triggered
 on:
   workflow_dispatch:
 
