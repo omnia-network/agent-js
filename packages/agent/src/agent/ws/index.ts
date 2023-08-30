@@ -63,10 +63,6 @@ export interface WsAgentOptions {
   // Must be an **open** WebSocket instance.
   ws: WebSocket;
 
-  // The host to use for the client. By default, uses the same host as
-  // the current page.
-  host: string;
-
   // The http agent needed to fetch the root key.
   httpAgent: HttpAgent;
 
@@ -100,7 +96,6 @@ export class WsAgent implements Agent {
   private _identity: Promise<SignIdentity>;
   private readonly _ws: WebSocket;
   private _timeDiffMsecs = 0;
-  private readonly _host: URL;
   private _httpAgent: HttpAgent;
   private _rootKeyFetched = false;
   private readonly _retryTimes; // Retry requests N times before erroring by default
@@ -114,7 +109,6 @@ export class WsAgent implements Agent {
       this._pipeline = [...options.source._pipeline];
       this._identity = options.source._identity;
       this._ws = options.source._ws;
-      this._host = options.source._host;
       this._httpAgent = options.source._httpAgent;
     } else {
       if (!options.identity) {
@@ -127,10 +121,6 @@ export class WsAgent implements Agent {
         throw new DefaultWsError('The provided WebSocket is not open');
       }
       this._ws = options.ws;
-      if (!options.host) {
-        throw new Error('A host must be provided to the WsAgent');
-      }
-      this._host = new URL(options.host);
       if (!options.httpAgent) {
         throw new Error('An httpAgent must be provided to the WsAgent');
       }
@@ -144,11 +134,6 @@ export class WsAgent implements Agent {
     if (!options.disableNonce) {
       this.addTransform(makeWsNonceTransform(makeNonce));
     }
-  }
-
-  public isLocal(): boolean {
-    const hostname = this._host.hostname;
-    return hostname === '127.0.0.1' || hostname.endsWith('localhost');
   }
 
   public addTransform(fn: WsAgentRequestTransformFn, priority = fn.priority || 0): void {
