@@ -1,0 +1,33 @@
+name: Release tarball
+
+# only run when a commit is pushed to the main branch
+on:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+      - name: Install dependencies
+        run: npm install
+      - name: Build dependencies
+        run: npm run build -w packages/principal -w packages/candid
+      - name: Build agent
+        run: npm run build -w packages/agent
+      - name: Pack agent
+        run: npm pack --workspace packages/agent
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./*.tgz
+          name: |
+            Release ${{ github.sha }}
+          draft: false
+          prerelease: false
