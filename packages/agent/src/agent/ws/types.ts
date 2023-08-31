@@ -58,9 +58,9 @@ export function isWsAgentResponse(obj: unknown): obj is WsAgentResponse {
   const payload = (obj as WsAgentResponse)['payload'];
 
   return (
-    'status' in obj &&
+    'status' in payload &&
     typeof payload['status'] === 'number' &&
-    'content' in obj &&
-    payload['content'] instanceof Uint8Array
+    'content' in payload &&
+    (payload['content'] instanceof ArrayBuffer || payload['content'] instanceof Uint8Array)
   );
 }
